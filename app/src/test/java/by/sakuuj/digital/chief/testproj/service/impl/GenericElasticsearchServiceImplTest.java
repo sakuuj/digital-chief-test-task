@@ -8,7 +8,6 @@ import by.sakuuj.digital.chief.testproj.dto.ProductDocumentDto;
 import by.sakuuj.digital.chief.testproj.dto.SkuDocumentDto;
 import by.sakuuj.digital.chief.testproj.service.IndexCreationService;
 import by.sakuuj.digital.chief.testproj.testconfigs.EmptyConfig;
-import by.sakuuj.digital.chief.testproj.testconfigs.RestClientTestConfig;
 import by.sakuuj.digital.chief.testproj.testcontainers.ElasticsearchSingletonContainerLauncher;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.elasticsearch.core.SearchResponse;

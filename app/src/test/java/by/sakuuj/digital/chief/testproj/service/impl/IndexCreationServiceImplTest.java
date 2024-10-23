@@ -2,16 +2,13 @@ package by.sakuuj.digital.chief.testproj.service.impl;
 
 import by.sakuuj.digital.chief.testproj.configs.ElasticsearchClientConfig;
 import by.sakuuj.digital.chief.testproj.configs.JacksonConfig;
-import by.sakuuj.digital.chief.testproj.testconfigs.EmptyConfig;
 import by.sakuuj.digital.chief.testproj.testconfigs.RestClientTestConfig;
 import by.sakuuj.digital.chief.testproj.testcontainers.ElasticsearchSingletonContainerLauncher;
-import by.sakuuj.digital.chief.testproj.utils.Base64Utils;
 import by.sakuuj.digital.chief.testproj.utils.JsonExtractorUtils;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
 import co.elastic.clients.transport.endpoints.BooleanResponse;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.api.Assertions;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -26,7 +23,6 @@ import org.springframework.test.context.junit.jupiter.SpringJUnitConfig;
 import org.springframework.web.client.RestClient;
 
 import java.io.IOException;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -79,5 +75,7 @@ class IndexCreationServiceImplTest extends ElasticsearchSingletonContainerLaunch
         JsonNode actual = objectMapper.readTree(mappingsResponse.getBody()).get(INDEX_NAME);
         String expectedJson = JsonExtractorUtils.fromFile(INDEX_BASE_PATH + INDEX_FILE_NAME);
         JSONAssert.assertEquals(expectedJson, actual.toPrettyString(), false);
+
+        esClient.indices().delete(b -> b.index(INDEX_NAME));
     }
 }

@@ -1,4 +1,7 @@
 {
+  "from": ":from",
+  "size": ":size",
+  "sort": [{"created_at":  {"order": "desc"}}],
   "query": {
     "bool": {
       "must": [
