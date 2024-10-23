@@ -1,0 +1,70 @@
+services:
+  postgres-sakuuj:
+    container_name: postgres-sakuuj-digital-chief
+    hostname: postgres-sakuuj-digital-chief
+    image: postgres:16.4
+    environment:
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "127.0.0.1:5432:5432"
+    deploy:
+      resources:
+        limits:
+          cpus: "1"
+          memory: 500mb
+    restart: unless-stopped
+
+  es-sakuuj:
+    container_name: es-sakuuj-digital-chief
+    hostname: es-sakuuj-digital-chief
+    image: elasticsearch:8.15.3
+    environment:
+      - ELASTIC_PASSWORD=elastic
+      - discovery.type=single-node
+      - xpack.security.http.ssl.enabled=false
+      - xpack.license.self_generated.type=basic
+    ports:
+      - "127.0.0.1:9200:9200"
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2gb
+    restart: unless-stopped
+    networks:
+      - net-es
+  kibana:
+    image: kibana:8.15.3
+    environment:
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_HOSTS=http://es-sakuuj-digital-chief:9200
+      - ELASTICSEARCH_URL=http://es-sakuuj-digital-chief:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=kibana
+      - XPACK_SECURITY_ENABLED=false
+      - XPACK_LICENSE_SELF__GENERATED_TYPE=basic
+#    command: >
+#      bash -c '
+#        echo "Setting kibana_system password";
+#        until curl -s -X POST -u "elastic:elastic" -H "Content-Type: application/json" http://es-sakuuj-digital-chief:9200/_security/user/kibana_system/_password -d "{\"password\":\"kibana\"}" | grep -q "^{}"; do sleep 10; done;
+#        echo "All done!";
+#      '
+    ports:
+      - "127.0.0.1:5601:5601"
+#    healthcheck:
+#      test:
+#        [
+#          "CMD-SHELL",
+#          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+#        ]
+#      interval: 10s
+#      timeout: 10s
+#      retries: 120
+    restart: unless-stopped
+    networks:
+      - net-es
+
+networks:
+  net-es:
