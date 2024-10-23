@@ -1,0 +1,27 @@
+{
+  "from": ":from",
+  "size": ":size",
+  "query": {
+    "bool": {
+      "should": [
+        {
+          "match": {
+            "product_title": {
+              "query": "?0",
+              "fuzziness": "AUTO"
+            }
+          }
+        },
+        {
+          "match": {
+            "product_description": {
+              "query": "?1",
+              "fuzziness": "AUTO"
+            }
+          }
+        }
+      ],
+      "minimum_should_match": 1
+    }
+  }
+}
