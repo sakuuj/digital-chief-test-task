@@ -10,6 +10,7 @@ import by.sakuuj.digital.chief.testproj.service.ProductElasticsearchService;
 import by.sakuuj.digital.chief.testproj.service.SkuElasticsearchService;
 import by.sakuuj.digital.chief.testproj.utils.FutureUtils;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Slice;
@@ -22,6 +23,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.function.BiFunction;
 import java.util.function.Function;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class DbToElasticDataTransferServiceImpl implements DbToElasticDataTransferService {
@@ -46,7 +48,7 @@ public class DbToElasticDataTransferServiceImpl implements DbToElasticDataTransf
 
         transferEntitiesCreatedAtAfterPointInTime(
                 pointInTime,
-                productRepository::findAllCreatedAtAfterPointInTime,
+                productRepository::findAllByModificationAudit_CreatedAtAfter,
                 productMapper::toDocumentDto,
                 productElasticsearchService::indexProductDocumentDtosInBulk
         );
@@ -57,7 +59,7 @@ public class DbToElasticDataTransferServiceImpl implements DbToElasticDataTransf
 
         transferEntitiesCreatedAtAfterPointInTime(
                 pointInTime,
-                skuRepository::findAllWhereCreatedAtAfterPointInTime,
+                skuRepository::findAllByModificationAudit_CreatedAtAfter,
                 skuMapper::toDocumentDto,
                 skuElasticsearchService::indexSkuDocumentDtosInBulk
         );
@@ -70,26 +72,42 @@ public class DbToElasticDataTransferServiceImpl implements DbToElasticDataTransf
             Function<T, U> entityToDocumentDtoMapper,
             Function<List<U>, CompletableFuture<Void>> indexDocumentDtosLambda
     ) {
+
+        log.info("Starting data transfer process...");
         int pageSize = 50;
         int pageNum = 0;
-        CompletableFuture<Void> indexProductsFuture = null;
+        CompletableFuture<Void> indexEntitiesFuture = null;
         Slice<T> foundEntitiesSlice;
         do {
-            Pageable pageable = PageRequest.of(pageNum, pageSize, Sort.by("createdAt").ascending());
+            Pageable pageable = PageRequest.of(pageNum, pageSize, Sort.by("modificationAudit.createdAt").ascending());
             foundEntitiesSlice = findEntitiesLambda.apply(pointInTime, pageable);
 
-            if (indexProductsFuture != null) {
+            log.info("Loaded page #{} with actual size {}", pageNum, foundEntitiesSlice.getNumberOfElements());
 
-                FutureUtils.waitForCompletion(indexProductsFuture);
+            if (indexEntitiesFuture != null) {
+
+                FutureUtils.waitForCompletion(indexEntitiesFuture);
+
+                log.info("Page #{} was transferred", pageNum - 1);
             }
 
             List<U> documentsToIndex = foundEntitiesSlice.getContent()
                     .stream()
                     .map(entityToDocumentDtoMapper)
                     .toList();
-            indexProductsFuture =  indexDocumentDtosLambda.apply(documentsToIndex);
+
+            log.info("Transferring page #{}", pageNum);
+
+            indexEntitiesFuture =  indexDocumentDtosLambda.apply(documentsToIndex);
 
             pageNum++;
+
         } while (foundEntitiesSlice.hasNext());
+
+        if (indexEntitiesFuture != null) {
+            FutureUtils.waitForCompletion(indexEntitiesFuture);
+
+            log.info("Page #{} was transferred", pageNum - 1);
+        }
     }
 }

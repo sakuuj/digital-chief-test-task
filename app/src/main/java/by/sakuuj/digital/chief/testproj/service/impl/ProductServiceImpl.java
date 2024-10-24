@@ -37,7 +37,7 @@ public class ProductServiceImpl implements ProductService {
         Page<Product> foundPage = productRepository.findAll(PageRequest.of(
                 pageable.getPageNumber(),
                 pageable.getPageSize(),
-                Sort.by("createdAt").descending()
+                Sort.by("modificationAudit.createdAt").descending()
         ));
 
         return foundPage.get()

@@ -1,5 +1,6 @@
 package by.sakuuj.digital.chief.testproj.entity;
 
+import jakarta.persistence.Access;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
@@ -13,6 +14,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.Accessors;
 
 import java.util.UUID;
 
@@ -21,6 +23,7 @@ import java.util.UUID;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
+@Accessors(chain = true)
 @Entity
 @Table(name = "PRODUCTS")
 public class Product {

@@ -10,5 +10,5 @@ import java.util.UUID;
 
 public interface ProductRepository extends JpaRepository<Product, UUID> {
 
-    Slice<Product> findAllCreatedAtAfterPointInTime(LocalDateTime pointInTime, Pageable pageable);
+    Slice<Product> findAllByModificationAudit_CreatedAtAfter(LocalDateTime pointInTime, Pageable pageable);
 }

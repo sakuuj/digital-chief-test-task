@@ -11,7 +11,7 @@ import java.util.UUID;
 @With
 @AllArgsConstructor
 @NoArgsConstructor(staticName = "builder")
-public class SkuDocumentTestBuilder {
+public class SkuTestBuilder {
 
     private UUID id = UUID.fromString("9aba4152-1751-44d6-9f4e-88bf821258d9");
     private String department = "footwear";
@@ -23,7 +23,7 @@ public class SkuDocumentTestBuilder {
     private String updatedAt = "2023-01-05T17:28:59";
     private UUID productId = UUID.fromString("46f4e776-888e-4cb8-b370-17282f5b2985");
 
-    public SkuDocumentDto buildDto() {
+    public SkuDocumentDto buildDocumentDto() {
 
         return SkuDocumentDto.builder()
                 .id(id)

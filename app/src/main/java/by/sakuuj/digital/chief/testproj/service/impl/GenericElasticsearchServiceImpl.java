@@ -49,6 +49,10 @@ public class GenericElasticsearchServiceImpl implements GenericElasticsearchServ
 
         BulkRequest.Builder bulkBuilder = new BulkRequest.Builder();
 
+        if (documents.isEmpty()) {
+            return CompletableFuture.completedFuture(null);
+        }
+
         documents.forEach(d ->
                 bulkBuilder.operations(op -> op
                         .index(b0 -> b0

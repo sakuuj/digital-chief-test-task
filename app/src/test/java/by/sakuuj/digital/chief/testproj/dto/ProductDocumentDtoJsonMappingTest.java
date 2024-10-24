@@ -1,11 +1,9 @@
 package by.sakuuj.digital.chief.testproj.dto;
 
-import by.sakuuj.digital.chief.testproj.ProductDocumentTestBuilder;
+import by.sakuuj.digital.chief.testproj.ProductTestBuilder;
 import by.sakuuj.digital.chief.testproj.configs.JacksonConfig;
-import by.sakuuj.digital.chief.testproj.dto.ProductDocumentDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.api.Assertions;
 import org.json.JSONException;
 import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
@@ -21,7 +19,7 @@ class ProductDocumentDtoJsonMappingTest {
     void shouldSerializeProductDocumentDtoToExpected() throws JsonProcessingException, JSONException {
 
         // given
-        var dto = ProductDocumentTestBuilder.builder().buildDto();
+        var dto = ProductTestBuilder.builder().buildDocumentDto();
 
         String expectedDto = """
                 {
@@ -55,7 +53,7 @@ class ProductDocumentDtoJsonMappingTest {
     void shouldDeserializeProductDocumentToExpectedProductDocumentDto() throws JsonProcessingException, JSONException {
 
         // given
-        var expected = ProductDocumentTestBuilder.builder().buildDto();
+        var expected = ProductTestBuilder.builder().buildDocumentDto();
 
         String jsonToDeserialize = """
                 {

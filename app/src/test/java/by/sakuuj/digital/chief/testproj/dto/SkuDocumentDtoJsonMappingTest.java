@@ -1,6 +1,6 @@
 package by.sakuuj.digital.chief.testproj.dto;
 
-import by.sakuuj.digital.chief.testproj.SkuDocumentTestBuilder;
+import by.sakuuj.digital.chief.testproj.SkuTestBuilder;
 import by.sakuuj.digital.chief.testproj.configs.JacksonConfig;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +17,7 @@ class SkuDocumentDtoJsonMappingTest {
     void shouldSerializeSkuDocumentDtoToExpected() throws JsonProcessingException, JSONException {
 
         // given
-        var dto = SkuDocumentTestBuilder.builder().buildDto();
+        var dto = SkuTestBuilder.builder().buildDocumentDto();
 
         String expectedDto = """
                 {
@@ -55,7 +55,7 @@ class SkuDocumentDtoJsonMappingTest {
     void shouldDeserializeProductDocumentToExpectedProductDocumentDto() throws JsonProcessingException, JSONException {
 
         // given
-        var expected = SkuDocumentTestBuilder.builder().buildDto();
+        var expected = SkuTestBuilder.builder().buildDocumentDto();
 
         String jsonToDeserialize = """
                 {

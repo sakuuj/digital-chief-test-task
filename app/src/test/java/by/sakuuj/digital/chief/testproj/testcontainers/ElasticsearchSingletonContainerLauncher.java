@@ -26,7 +26,6 @@ public abstract class ElasticsearchSingletonContainerLauncher {
     @DynamicPropertySource
     static void setDynamicProps(DynamicPropertyRegistry registry) {
         registry.add("by.sakuuj.elasticsearch.server.url", ElasticsearchSingletonContainerLauncher::getContainerUrl);
-        registry.add("spring.elasticsearch.username", () -> ELASTICSEARCH_USERNAME);
         registry.add("by.sakuuj.elasticsearch.password", () -> ELASTICSEARCH_PASSWORD);
     }
 

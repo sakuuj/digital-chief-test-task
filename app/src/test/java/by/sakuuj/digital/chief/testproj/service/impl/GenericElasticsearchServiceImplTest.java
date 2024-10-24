@@ -1,7 +1,7 @@
 package by.sakuuj.digital.chief.testproj.service.impl;
 
-import by.sakuuj.digital.chief.testproj.ProductDocumentTestBuilder;
-import by.sakuuj.digital.chief.testproj.SkuDocumentTestBuilder;
+import by.sakuuj.digital.chief.testproj.ProductTestBuilder;
+import by.sakuuj.digital.chief.testproj.SkuTestBuilder;
 import by.sakuuj.digital.chief.testproj.configs.ElasticsearchClientConfig;
 import by.sakuuj.digital.chief.testproj.configs.JacksonConfig;
 import by.sakuuj.digital.chief.testproj.dto.ProductDocumentDto;
@@ -70,10 +70,10 @@ class GenericElasticsearchServiceImplTest extends ElasticsearchSingletonContaine
     void shouldIndexInBulkForJoinParent() throws IOException, ExecutionException, InterruptedException {
 
 
-        ProductDocumentDto firstDto = ProductDocumentTestBuilder.builder().buildDto();
-        ProductDocumentDto secondDto = ProductDocumentTestBuilder.builder()
+        ProductDocumentDto firstDto = ProductTestBuilder.builder().buildDocumentDto();
+        ProductDocumentDto secondDto = ProductTestBuilder.builder()
                 .withId(UUID.fromString("46f4e776-888e-4cb8-b370-17282f5b2985"))
-                .buildDto();
+                .buildDocumentDto();
 
         serviceImpl.indexInBulk(List.of(firstDto, secondDto), dto -> dto.id().toString(), INDEX_NAME).get();
 
@@ -98,10 +98,10 @@ class GenericElasticsearchServiceImplTest extends ElasticsearchSingletonContaine
     void shouldIndexInBulkForJoinChild() throws IOException, ExecutionException, InterruptedException {
 
 
-        SkuDocumentDto firstDto = SkuDocumentTestBuilder.builder().buildDto();
-        SkuDocumentDto secondDto = SkuDocumentTestBuilder.builder()
+        SkuDocumentDto firstDto = SkuTestBuilder.builder().buildDocumentDto();
+        SkuDocumentDto secondDto = SkuTestBuilder.builder()
                 .withId(UUID.fromString("46f4e776-888e-4cb8-b370-17282f5b2985"))
-                .buildDto();
+                .buildDocumentDto();
 
         serviceImpl.indexInBulk(List.of(firstDto, secondDto), dto -> dto.getId().toString(), INDEX_NAME).get();
 

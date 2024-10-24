@@ -1,7 +1,7 @@
 package by.sakuuj.digital.chief.testproj.service.impl;
 
-import by.sakuuj.digital.chief.testproj.ProductDocumentTestBuilder;
-import by.sakuuj.digital.chief.testproj.SkuDocumentTestBuilder;
+import by.sakuuj.digital.chief.testproj.ProductTestBuilder;
+import by.sakuuj.digital.chief.testproj.SkuTestBuilder;
 import by.sakuuj.digital.chief.testproj.configs.ElasticsearchClientConfig;
 import by.sakuuj.digital.chief.testproj.configs.FormatConfig;
 import by.sakuuj.digital.chief.testproj.configs.JacksonConfig;
@@ -97,34 +97,34 @@ class ProductElasticsearchServiceImplTest extends ElasticsearchSingletonContaine
 
         // given
         List<ProductDocumentDto> productDataSet = List.of(
-                ProductDocumentTestBuilder.builder()
+                ProductTestBuilder.builder()
                         .withBrand("Nike")
-                        .buildDto(),
-                ProductDocumentTestBuilder.builder()
+                        .buildDocumentDto(),
+                ProductTestBuilder.builder()
                         .withBrand("Nike")
                         .withId(UUID.fromString("7286161e-80bd-4a9f-9d37-3aa684193706"))
-                        .buildDto(),
-                ProductDocumentTestBuilder.builder()
+                        .buildDocumentDto(),
+                ProductTestBuilder.builder()
                         .withBrand("Adidas")
                         .withId(UUID.fromString("e25b3a44-b927-43dc-92ac-5aa670b6e8d1"))
-                        .buildDto()
+                        .buildDocumentDto()
         );
 
         List<SkuDocumentDto> skuDataSet = List.of(
-                SkuDocumentTestBuilder.builder()
+                SkuTestBuilder.builder()
                         .withDepartment("dep1")
                         .withProductId(productDataSet.getFirst().id())
-                        .buildDto(),
-                SkuDocumentTestBuilder.builder()
+                        .buildDocumentDto(),
+                SkuTestBuilder.builder()
                         .withDepartment("dep2")
                         .withId(UUID.fromString("d3893f80-e484-4458-8ce5-83e0686e953a"))
                         .withProductId(productDataSet.getFirst().id())
-                        .buildDto(),
-                SkuDocumentTestBuilder.builder()
+                        .buildDocumentDto(),
+                SkuTestBuilder.builder()
                         .withDepartment("dep1")
                         .withId(UUID.fromString("3ddb7eef-c5b8-42e4-bb06-eb80eea8e45b"))
                         .withProductId(productDataSet.getLast().id())
-                        .buildDto()
+                        .buildDocumentDto()
         );
 
         skuElasticsearchService.indexSkuDocumentDtosInBulk(skuDataSet).get();
@@ -146,37 +146,37 @@ class ProductElasticsearchServiceImplTest extends ElasticsearchSingletonContaine
 
         // given
         List<ProductDocumentDto> productDataSet = List.of(
-                ProductDocumentTestBuilder.builder()
+                ProductTestBuilder.builder()
                         .withBrand("Nike")
                         .withCreatedAt("2021-07-01T11:11:11")
-                        .buildDto(),
-                ProductDocumentTestBuilder.builder()
+                        .buildDocumentDto(),
+                ProductTestBuilder.builder()
                         .withBrand("Nike")
                         .withId(UUID.fromString("7286161e-80bd-4a9f-9d37-3aa684193706"))
                         .withCreatedAt("2021-07-01T11:11:12")
-                        .buildDto(),
-                ProductDocumentTestBuilder.builder()
+                        .buildDocumentDto(),
+                ProductTestBuilder.builder()
                         .withBrand("Nike")
                         .withId(UUID.fromString("e25b3a44-b927-43dc-92ac-5aa670b6e8d1"))
                         .withCreatedAt("2021-07-01T11:11:13")
-                        .buildDto()
+                        .buildDocumentDto()
         );
 
         List<SkuDocumentDto> skuDataSet = List.of(
-                SkuDocumentTestBuilder.builder()
+                SkuTestBuilder.builder()
                         .withDepartment("dep1")
                         .withProductId(productDataSet.getFirst().id())
-                        .buildDto(),
-                SkuDocumentTestBuilder.builder()
+                        .buildDocumentDto(),
+                SkuTestBuilder.builder()
                         .withDepartment("dep1")
                         .withId(UUID.fromString("d3893f80-e484-4458-8ce5-83e0686e953a"))
                         .withProductId(productDataSet.get(1).id())
-                        .buildDto(),
-                SkuDocumentTestBuilder.builder()
+                        .buildDocumentDto(),
+                SkuTestBuilder.builder()
                         .withDepartment("dep1")
                         .withId(UUID.fromString("3ddb7eef-c5b8-42e4-bb06-eb80eea8e45b"))
                         .withProductId(productDataSet.getLast().id())
-                        .buildDto()
+                        .buildDocumentDto()
         );
 
         skuElasticsearchService.indexSkuDocumentDtosInBulk(skuDataSet).get();
@@ -206,20 +206,20 @@ class ProductElasticsearchServiceImplTest extends ElasticsearchSingletonContaine
 
         // given
         List<ProductDocumentDto> productDataSet = List.of(
-                ProductDocumentTestBuilder.builder()
+                ProductTestBuilder.builder()
                         .withTitle("TITLE_ONE")
                         .withDescription("DESC_ONE")
-                        .buildDto(),
-                ProductDocumentTestBuilder.builder()
+                        .buildDocumentDto(),
+                ProductTestBuilder.builder()
                         .withTitle("TITLE_TWO")
                         .withDescription("DESC_TWO")
                         .withId(UUID.fromString("7286161e-80bd-4a9f-9d37-3aa684193706"))
-                        .buildDto(),
-                ProductDocumentTestBuilder.builder()
+                        .buildDocumentDto(),
+                ProductTestBuilder.builder()
                         .withTitle("TITLE_ONE")
                         .withDescription("DESC_THREE")
                         .withId(UUID.fromString("e25b3a44-b927-43dc-92ac-5aa670b6e8d1"))
-                        .buildDto()
+                        .buildDocumentDto()
         );
 
         serviceImpl.indexProductDocumentDtosInBulk(productDataSet).get();
