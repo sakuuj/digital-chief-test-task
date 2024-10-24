@@ -5,11 +5,26 @@
 Тестовые данные: [app/src/main/resources/liquibase/changelog_0_1/changeset/insert_values.sql](app/src/main/resources/liquibase/changelog_0_1/changeset/insert_values.sql) 
 
 ### Rest Api 
-По адресу http://localhost:8080/swagger-ui.html
+Swagger по адресу http://localhost:8080/swagger-ui.html
 
 ### Инструкция по запуску
 1. `./gradlew :app:bootJar`
 2. `docker compose up`
+
+### Замечания
+Передача данных из PostgreSQL в Elasticsearch осуществляется через endpoint `/data-transfer/products` для продуктов
+и `/data-transfer/skus` для sku. Параметр 'perPageSize' означает по сколько сущностей брать за раз из базы и индексировать
+в Elasticsearch через bulk request.
+
+Поиск в Elasticsearch осуществляется через endpoint `/products`, но необходимо чтобы
+были указаны либо оба параметра таких как 'product_title','product_description', либо
+же оба параметра 'product_brand','sku_department'. В остальных случая используется поиск из PostgreSQL.
+
+Поиск по 'product_title','product_description' допускает нечёткость(fuzziness).
+
+При поиске по 'product_brand','sku_department', указываемые параметры должны совпадать с искомыми вплоть до буквенных регистров.
+
+Сами запросы записаны в json файлах и лежат в директории [app/src/main/resources/elasticsearch/query](app/src/main/resources/elasticsearch/query).
 
 ### Задание
 ```
