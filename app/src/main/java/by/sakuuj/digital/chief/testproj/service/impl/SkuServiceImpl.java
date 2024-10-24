@@ -2,11 +2,13 @@ package by.sakuuj.digital.chief.testproj.service.impl;
 
 import by.sakuuj.digital.chief.testproj.dto.SkuRequest;
 import by.sakuuj.digital.chief.testproj.dto.SkuResponse;
+import by.sakuuj.digital.chief.testproj.entity.Product;
 import by.sakuuj.digital.chief.testproj.entity.Sku;
 import by.sakuuj.digital.chief.testproj.exception.EntityNotFoundException;
 import by.sakuuj.digital.chief.testproj.exception.NotMatchingEntityVersionException;
 import by.sakuuj.digital.chief.testproj.mapper.SkuMapper;
 import by.sakuuj.digital.chief.testproj.paging.PagedResponse;
+import by.sakuuj.digital.chief.testproj.repository.ReferenceRepository;
 import by.sakuuj.digital.chief.testproj.repository.SkuRepository;
 import by.sakuuj.digital.chief.testproj.service.SkuService;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +29,7 @@ import java.util.stream.Collectors;
 public class SkuServiceImpl implements SkuService {
 
     private final SkuRepository skuRepository;
+    private final ReferenceRepository referenceRepository;
     private final SkuMapper skuMapper;
 
     @Override
@@ -38,6 +41,31 @@ public class SkuServiceImpl implements SkuService {
                 pageable.getPageSize(),
                 Sort.by("modificationAudit.createdAt").descending()
         ));
+
+        return foundPage.get()
+                .map(skuMapper::toResponse)
+                .collect(Collectors.collectingAndThen(
+                                Collectors.toList(),
+                                list -> PagedResponse.<SkuResponse>builder()
+                                        .content(list)
+                                        .pageSize(pageable.getPageSize())
+                                        .pageNumber(pageable.getPageNumber())
+                                        .totalCount(foundPage.getTotalPages())
+                                        .build()
+                        )
+                );
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PagedResponse<SkuResponse> findAllByProductId(UUID productId, Pageable pageable) {
+
+        Page<Sku> foundPage = skuRepository.findAllByProductId(productId,
+                PageRequest.of(
+                        pageable.getPageNumber(),
+                        pageable.getPageSize(),
+                        Sort.by("modificationAudit.createdAt").descending()
+                ));
 
         return foundPage.get()
                 .map(skuMapper::toResponse)
@@ -84,9 +112,11 @@ public class SkuServiceImpl implements SkuService {
     }
 
     @Override
-    public UUID save(SkuRequest request) {
+    public UUID save(SkuRequest request, UUID productId) {
 
-        Sku skuToSave = skuMapper.toEntity(request);
+        Product productReference = referenceRepository.getReference(Product.class, productId);
+
+        Sku skuToSave = skuMapper.toEntity(request).setProduct(productReference);
         Sku saved = skuRepository.save(skuToSave);
 
         return saved.getSequenceNumber();

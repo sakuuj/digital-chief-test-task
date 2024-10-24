@@ -14,9 +14,11 @@ public interface SkuService {
 
     PagedResponse<SkuResponse> findAllSortedByCreatedAtDesc(Pageable pageable);
 
+    PagedResponse<SkuResponse> findAllByProductId(UUID productId, Pageable pageable);
+
     Optional<SkuResponse> findById(UUID id);
 
-    UUID save(SkuRequest skuRequest);
+    UUID save(SkuRequest skuRequest, UUID productId);
 
     void update(UUID id, short version, SkuRequest request);
 
