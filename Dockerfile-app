@@ -1,0 +1,11 @@
+FROM eclipse-temurin:21-jre-alpine
+
+ARG NAME="app"
+ARG VERSION="1.0-SNAPSHOT"
+ARG JAR_FILE="${NAME}/build/libs/${NAME}-${VERSION}.jar"
+
+ENV APP_NAME="app.jar"
+
+COPY ${JAR_FILE} ${APP_NAME}
+
+ENTRYPOINT ["sh", "-c", "java -Duser.timezone=UTC ${JAVA_OPTS} -jar /${APP_NAME}"]

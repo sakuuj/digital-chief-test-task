@@ -1,4 +1,27 @@
 services:
+  testapp:
+    depends_on:
+      es-sakuuj:
+        condition: service_healthy
+      postgres-sakuuj:
+        condition: service_healthy
+    container_name: testapp-sakuuj-digital-chief
+    hostname: testapp-sakuuj-digital-chief
+    build:
+      dockerfile: Dockerfile-app
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      - "127.0.0.1:8080:8080"
+    deploy:
+      resources:
+        limits:
+          cpus: "2"
+          memory: 2gb
+    restart: unless-stopped
+    networks:
+      - net-sakuuj
+
   postgres-sakuuj:
     container_name: postgres-sakuuj-digital-chief
     hostname: postgres-sakuuj-digital-chief
@@ -6,15 +29,23 @@ services:
     environment:
       - POSTGRES_PASSWORD=postgres
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=postgres
-    ports:
-      - "127.0.0.1:5432:5432"
+      - POSTGRES_DB=${POSTGRES_DB}
+      - PGUSER=postgres
+#    ports:
+#      - "127.0.0.1:5432:5432"
     deploy:
       resources:
         limits:
           cpus: "1"
-          memory: 500mb
+          memory: 1gb
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready", "-d", "${POSTGRES_DB}" ]
+      interval: 5s
+      timeout: 10s
+      retries: 100
     restart: unless-stopped
+    networks:
+      - net-sakuuj
 
   es-sakuuj:
     container_name: es-sakuuj-digital-chief
@@ -25,46 +56,49 @@ services:
       - discovery.type=single-node
       - xpack.security.http.ssl.enabled=false
       - xpack.license.self_generated.type=basic
-    ports:
-      - "127.0.0.1:9200:9200"
+#    ports:
+#      - "127.0.0.1:9200:9200"
     deploy:
       resources:
         limits:
           cpus: "2"
           memory: 2gb
     restart: unless-stopped
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          curl -s -u "elastic:elastic" http://localhost:9200/_cluster/health | grep -q '"status":"green"',
+        ]
+      interval: 5s
+      timeout: 10s
+      retries: 100
     networks:
-      - net-es
-  kibana:
-    image: kibana:8.15.3
-    environment:
-      - SERVERNAME=kibana
-      - ELASTICSEARCH_HOSTS=http://es-sakuuj-digital-chief:9200
-      - ELASTICSEARCH_URL=http://es-sakuuj-digital-chief:9200
-      - ELASTICSEARCH_USERNAME=kibana_system
-      - ELASTICSEARCH_PASSWORD=kibana
-      - XPACK_SECURITY_ENABLED=false
-      - XPACK_LICENSE_SELF__GENERATED_TYPE=basic
-#    command: >
-#      bash -c '
-#        echo "Setting kibana_system password";
-#        until curl -s -X POST -u "elastic:elastic" -H "Content-Type: application/json" http://es-sakuuj-digital-chief:9200/_security/user/kibana_system/_password -d "{\"password\":\"kibana\"}" | grep -q "^{}"; do sleep 10; done;
-#        echo "All done!";
-#      '
-    ports:
-      - "127.0.0.1:5601:5601"
-#    healthcheck:
-#      test:
-#        [
-#          "CMD-SHELL",
-#          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
-#        ]
-#      interval: 10s
-#      timeout: 10s
-#      retries: 120
-    restart: unless-stopped
-    networks:
-      - net-es
+      - net-sakuuj
+
+## curl -i -X POST -u "elastic:elastic" -H "Content-Type: application/json" http://localhost:9200/_security/user/kibana_system/_password -d "{\"password\":\"kibana\"}"
+#  kibana:
+#    image: kibana:8.15.3
+#    environment:
+#      - SERVERNAME=kibana
+#      - ELASTICSEARCH_HOSTS=http://es-sakuuj-digital-chief:9200
+#      - ELASTICSEARCH_URL=http://es-sakuuj-digital-chief:9200
+#      - ELASTICSEARCH_USERNAME=kibana_system
+#      - ELASTICSEARCH_PASSWORD=kibana
+#      - XPACK_SECURITY_ENABLED=false
+#      - XPACK_LICENSE_SELF__GENERATED_TYPE=basic
+#    ports:
+#      - "127.0.0.1:5601:5601"
+##    healthcheck:
+##      test:
+##        [
+##          "CMD-SHELL",
+##          "curl -s -I http://localhost:5601 | grep -q 'HTTP/1.1 302 Found'",
+##        ]
+##      interval: 10s
+##      timeout: 10s
+##      retries: 120
+#    restart: unless-stopped
 
 networks:
-  net-es:
+  net-sakuuj:

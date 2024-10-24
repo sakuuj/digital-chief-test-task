@@ -31,9 +31,12 @@ import java.util.UUID;
 @RequestMapping(path = "/skus", produces = MediaType.APPLICATION_JSON_VALUE)
 public class SkusController {
 
+    private static final String PRODUCT_ID_PARAMETER = "product_id";
+
     private final SkuService skuService;
 
     @Operation(parameters = {
+            @Parameter(name = PRODUCT_ID_PARAMETER, example = "46f4e776-888e-4cb8-b370-17282f5b2985"),
             @Parameter(name = "page", example = "0"),
             @Parameter(name = "size", example = "3"),
     })
@@ -42,6 +45,15 @@ public class SkusController {
     public PagedResponse<SkuResponse> findAll(@Parameter(hidden = true) Pageable pageable) {
 
         return skuService.findAllSortedByCreatedAtDesc(pageable);
+    }
+
+    @ApiResponse(responseCode = "200", content = @Content)
+    @GetMapping(params = PRODUCT_ID_PARAMETER)
+    public PagedResponse<SkuResponse> findAllByProductId(
+            @Parameter(hidden = true) @RequestParam(PRODUCT_ID_PARAMETER) UUID id,
+            @Parameter(hidden = true) Pageable pageable
+    ) {
+        return skuService.findAllByProductId(id, pageable);
     }
 
     @ApiResponse(responseCode = "200", content = @Content)
@@ -56,7 +68,7 @@ public class SkusController {
     @PostMapping
     public ResponseEntity<SkuResponse> create(
             @RequestBody @Valid SkuRequest request,
-            @RequestParam("product-id") UUID productId
+            @RequestParam(PRODUCT_ID_PARAMETER) UUID productId
     ) {
 
         UUID id = skuService.save(request, productId);
