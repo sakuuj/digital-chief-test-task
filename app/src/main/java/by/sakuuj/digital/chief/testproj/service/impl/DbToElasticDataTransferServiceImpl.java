@@ -44,9 +44,10 @@ public class DbToElasticDataTransferServiceImpl implements DbToElasticDataTransf
     }
 
     @Override
-    public void transferProductsCreatedAtAfterPointInTime(LocalDateTime pointInTime) {
+    public void transferProductsCreatedAtAfterPointInTime(LocalDateTime pointInTime, int perPageSize) {
 
         transferEntitiesCreatedAtAfterPointInTime(
+                perPageSize,
                 pointInTime,
                 productRepository::findAllByModificationAudit_CreatedAtAfter,
                 productMapper::toDocumentDto,
@@ -55,9 +56,10 @@ public class DbToElasticDataTransferServiceImpl implements DbToElasticDataTransf
     }
 
     @Override
-    public void transferSkusCreatedAtAfterPointInTime(LocalDateTime pointInTime) {
+    public void transferSkusCreatedAtAfterPointInTime(LocalDateTime pointInTime, int perPageSize) {
 
         transferEntitiesCreatedAtAfterPointInTime(
+                perPageSize,
                 pointInTime,
                 skuRepository::findAllByModificationAudit_CreatedAtAfter,
                 skuMapper::toDocumentDto,
@@ -67,6 +69,7 @@ public class DbToElasticDataTransferServiceImpl implements DbToElasticDataTransf
 
 
     private <T, U> void transferEntitiesCreatedAtAfterPointInTime(
+            int perPageSize,
             LocalDateTime pointInTime,
             BiFunction<LocalDateTime, Pageable, Slice<T>> findEntitiesLambda,
             Function<T, U> entityToDocumentDtoMapper,
@@ -74,12 +77,11 @@ public class DbToElasticDataTransferServiceImpl implements DbToElasticDataTransf
     ) {
 
         log.info("Starting data transfer process...");
-        int pageSize = 50;
         int pageNum = 0;
         CompletableFuture<Void> indexEntitiesFuture = null;
         Slice<T> foundEntitiesSlice;
         do {
-            Pageable pageable = PageRequest.of(pageNum, pageSize, Sort.by("modificationAudit.createdAt").ascending());
+            Pageable pageable = PageRequest.of(pageNum, perPageSize, Sort.by("modificationAudit.createdAt").ascending());
             foundEntitiesSlice = findEntitiesLambda.apply(pointInTime, pageable);
 
             log.info("Loaded page #{} with actual size {}", pageNum, foundEntitiesSlice.getNumberOfElements());

@@ -6,7 +6,7 @@ public interface DbToElasticDataTransferService {
 
     void createIndex(String indexName, String jsonFileName);
 
-    void transferProductsCreatedAtAfterPointInTime(LocalDateTime pointInTime);
+    void transferProductsCreatedAtAfterPointInTime(LocalDateTime pointInTime, int perPageSize);
 
-    void transferSkusCreatedAtAfterPointInTime(LocalDateTime pointInTime);
+    void transferSkusCreatedAtAfterPointInTime(LocalDateTime pointInTime, int perPageSize);
 }

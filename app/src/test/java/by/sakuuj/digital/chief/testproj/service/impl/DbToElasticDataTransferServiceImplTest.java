@@ -10,6 +10,8 @@ import co.elastic.clients.elasticsearch.core.search.Hit;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -107,11 +109,18 @@ class DbToElasticDataTransferServiceImplTest {
         esClient.indices().delete(b -> b.index(INDEX_NAME));
     }
 
-    @Test
-    void shouldTransferProducts() throws IOException {
+
+    static List<Integer> shouldTransferProducts() {
+        return List.of(10, 20, 50, 100);
+    }
+
+    @MethodSource
+    @ParameterizedTest
+    void shouldTransferProducts(int perPageSize) throws IOException {
         // given
+
         LocalDateTime pointInTime = LocalDateTime.parse("2024-10-07T16:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        serviceImpl.transferProductsCreatedAtAfterPointInTime(pointInTime);
+        serviceImpl.transferProductsCreatedAtAfterPointInTime(pointInTime, perPageSize);
 
         esClient.indices().refresh();
 
@@ -129,11 +138,16 @@ class DbToElasticDataTransferServiceImplTest {
         assertThat(hits).hasSize(13);
     }
 
-    @Test
-    void shouldTransferSkus() throws IOException {
+    static List<Integer> shouldTransferSkus() {
+        return List.of(10, 20, 50, 100);
+    }
+
+    @MethodSource
+    @ParameterizedTest
+    void shouldTransferSkus(int perPageSize) throws IOException {
         // given
         LocalDateTime pointInTime = LocalDateTime.parse("2024-10-21T14:00:00", DateTimeFormatter.ISO_LOCAL_DATE_TIME);
-        serviceImpl.transferSkusCreatedAtAfterPointInTime(pointInTime);
+        serviceImpl.transferSkusCreatedAtAfterPointInTime(pointInTime, perPageSize);
 
         esClient.indices().refresh();
 
