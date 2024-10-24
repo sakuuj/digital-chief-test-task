@@ -1,0 +1,2 @@
+spring.datasource.url: jdbc:postgresql://postgres-sakuuj-digital-chief:5432/postgres
+by.sakuuj.elasticsearch.server.url: http://es-sakuuj-digital-chief:9200

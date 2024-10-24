@@ -1,0 +1,28 @@
+plugins {
+    id("java-platform")
+}
+
+javaPlatform {
+    allowDependencies()
+}
+
+group = "by.sakuuj.digital.chief"
+version = "1.0-SNAPSHOT"
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    api(platform("org.springframework.boot:spring-boot-dependencies:3.3.1"))
+
+    constraints {
+        api("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+        api("co.elastic.clients:elasticsearch-java:8.15.3")
+        api("org.projectlombok:lombok-mapstruct-binding:0.2.0")
+
+        def mapstructVersion = "1.5.5.Final"
+        api("org.mapstruct:mapstruct:$mapstructVersion")
+        api("org.mapstruct:mapstruct-processor:$mapstructVersion")
+    }
+}
