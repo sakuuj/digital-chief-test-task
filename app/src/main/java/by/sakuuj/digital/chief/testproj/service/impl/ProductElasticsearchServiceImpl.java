@@ -31,10 +31,11 @@ public class ProductElasticsearchServiceImpl implements ProductElasticsearchServ
     private static final String TEMPLATE_PRODUCT_TITLE_OR_PRODUCT_DESCRIPTION_QUERY = JsonExtractorUtils
             .fromFile("/elasticsearch/query/product_title__product_description.json");
 
-    public ProductElasticsearchServiceImpl(ProductMapper productMapper,
-                                           GenericElasticsearchServiceImpl genericEsService,
-                                           @Value("${by.sakuuj.elasticsearch.main-index.name}")
-                                           String mainIndexName
+    public ProductElasticsearchServiceImpl(
+            ProductMapper productMapper,
+            GenericElasticsearchServiceImpl genericEsService,
+            @Value("${by.sakuuj.elasticsearch.main-index.name}")
+            String mainIndexName
     ) {
         this.productMapper = productMapper;
         this.genericEsService = genericEsService;
@@ -46,34 +47,38 @@ public class ProductElasticsearchServiceImpl implements ProductElasticsearchServ
         return genericEsService.indexInBulk(products, p -> p.id().toString(), mainIndexName);
     }
 
-    public <T, R> PagedResponse<R> findAllByJsonQueryWithTotalCount(String jsonQuery,
-                                                                    int from,
-                                                                    int size,
-                                                                    Function<Hit<T>, R> mapper,
-                                                                    Class<T> clazz) {
+    public <T, R> PagedResponse<R> findAllByJsonQueryWithTotalCount(
+            String jsonQuery,
+            int from,
+            int size,
+            Function<Hit<T>, R> mapper,
+            Class<T> clazz
+    ) {
         HitsMetadata<T> hits = genericEsService.findWithJson(
                 mainIndexName,
                 jsonQuery,
                 clazz
         );
 
-        int totalCount = (int) Objects.requireNonNull(hits.total()).value();
+        int totalElementsCount = (int) Objects.requireNonNull(hits.total()).value();
         List<R> responseContent = hits.hits().stream()
                 .map(mapper)
                 .toList();
 
         return PagedResponse.<R>builder()
                 .content(responseContent)
-                .totalCount(totalCount)
+                .totalElementsCount(totalElementsCount)
                 .pageSize(size)
                 .pageNumber(from)
                 .build();
     }
 
-    public PagedResponse<ProductResponse> findAllByProductTitleOrProductDescription(String productTitle,
-                                                                                    String productDescription,
-                                                                                    int from,
-                                                                                    int size) {
+    public PagedResponse<ProductResponse> findAllByProductTitleOrProductDescription(
+            String productTitle,
+            String productDescription,
+            int from,
+            int size
+    ) {
         String jsonQuery = TEMPLATE_PRODUCT_TITLE_OR_PRODUCT_DESCRIPTION_QUERY
                 .replace("?0", productTitle)
                 .replace("?1", productDescription)
@@ -89,10 +94,12 @@ public class ProductElasticsearchServiceImpl implements ProductElasticsearchServ
         );
     }
 
-    public PagedResponse<ProductResponse> findAllByHavingChildWithSkuDepartmentAndProductBrand(String productBrand,
-                                                                                               String childSkuDepartment,
-                                                                                               int from,
-                                                                                               int size) {
+    public PagedResponse<ProductResponse> findAllByHavingChildWithSkuDepartmentAndProductBrand(
+            String productBrand,
+            String childSkuDepartment,
+            int from,
+            int size
+    ) {
         String jsonQuery = TEMPLATE_SKU_DEPARTMENT_AND_PRODUCT_BRAND_QUERY
                 .replace("?0", childSkuDepartment)
                 .replace("?1", productBrand)

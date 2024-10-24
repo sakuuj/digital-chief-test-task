@@ -48,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
                                         .content(list)
                                         .pageSize(pageable.getPageSize())
                                         .pageNumber(pageable.getPageNumber())
-                                        .totalCount(foundPage.getTotalPages())
+                                        .totalElementsCount((int)foundPage.getTotalElements())
                                         .build()
                         )
                 );

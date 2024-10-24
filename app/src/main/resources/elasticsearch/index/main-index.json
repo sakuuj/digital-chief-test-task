@@ -10,11 +10,11 @@
       },
       "created_at": {
         "type": "date",
-        "format": "strict_date_hour_minute_second"
+        "format": "date_hour_minute_second"
       },
       "updated_at": {
         "type": "date",
-        "format": "strict_date_hour_minute_second"
+        "format": "date_hour_minute_second"
       },
       "version": {
         "type": "short"

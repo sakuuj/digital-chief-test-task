@@ -1,8 +1,10 @@
 package by.sakuuj.digital.chief.testproj.service.impl;
 
+import by.sakuuj.digital.chief.testproj.exception.IndexAlreadyExistsException;
 import by.sakuuj.digital.chief.testproj.service.IndexCreationService;
 import by.sakuuj.digital.chief.testproj.utils.JsonExtractorUtils;
 import co.elastic.clients.elasticsearch.ElasticsearchClient;
+import co.elastic.clients.transport.endpoints.BooleanResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,12 @@ public class IndexCreationServiceImpl implements IndexCreationService {
         Reader input = new StringReader(jsonContent);
 
         try {
+            BooleanResponse existsResponse = esClient.indices().exists(b -> b.index(indexName));
+            if (existsResponse.value()) {
+
+                throw new IndexAlreadyExistsException("Index '%s' already exists".formatted(indexName));
+            }
+
             esClient.indices().create(b -> b.index(indexName).withJson(input));
 
         } catch (IOException e) {

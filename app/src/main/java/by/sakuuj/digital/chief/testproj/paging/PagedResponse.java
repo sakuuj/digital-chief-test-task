@@ -6,7 +6,7 @@ import java.util.List;
 import java.util.function.Function;
 
 @Builder
-public record PagedResponse<T>(List<T> content, int pageNumber, int pageSize, int totalCount) {
+public record PagedResponse<T>(List<T> content, int pageNumber, int pageSize, int totalElementsCount) {
 
     public <R> PagedResponse<R> map(Function<T, R> mapper) {
 
@@ -18,7 +18,7 @@ public record PagedResponse<T>(List<T> content, int pageNumber, int pageSize, in
                 .content(mappedContent)
                 .pageSize(pageSize)
                 .pageNumber(pageNumber)
-                .totalCount(totalCount)
+                .totalElementsCount(totalElementsCount)
                 .build();
     }
 }

@@ -5,6 +5,10 @@ import com.fasterxml.jackson.annotation.JsonGetter;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonSetter;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -57,11 +61,12 @@ public class SkuDocumentDto {
     }
 
     @JsonGetter(SkuDocumentDtoPropertyNames.JOIN_FIELD)
-    private Map<String, String> getJoinField() {
+    private JsonNode getJoinField() {
 
-        return Map.of(
-                SkuDocumentDtoPropertyNames.JOIN_FIELD__NAME, "sku",
-                SkuDocumentDtoPropertyNames.JOIN_FIELD__PARENT, productId.toString()
+        Map<String, JsonNode> content = Map.of(
+                SkuDocumentDtoPropertyNames.JOIN_FIELD__NAME, new TextNode("sku"),
+                SkuDocumentDtoPropertyNames.JOIN_FIELD__PARENT, new TextNode(productId.toString())
         );
+        return new ObjectNode(JsonNodeFactory.instance, content);
     }
 }

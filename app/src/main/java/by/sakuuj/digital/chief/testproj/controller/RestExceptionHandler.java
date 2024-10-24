@@ -3,12 +3,15 @@ package by.sakuuj.digital.chief.testproj.controller;
 import by.sakuuj.digital.chief.testproj.exception.BulkIndexingException;
 import by.sakuuj.digital.chief.testproj.exception.CanNotCreateIndexException;
 import by.sakuuj.digital.chief.testproj.exception.EntityNotFoundException;
+import by.sakuuj.digital.chief.testproj.exception.NotMatchingEntityVersionException;
 import lombok.Builder;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.awt.geom.NoninvertibleTransformException;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class RestExceptionHandler {
@@ -41,11 +44,32 @@ public class RestExceptionHandler {
                 .body(apiError);
     }
 
-    @ExceptionHandler({EntityNotFoundException.class, NoninvertibleTransformException.class})
+    @ExceptionHandler({
+            EntityNotFoundException.class,
+            NotMatchingEntityVersionException.class,
+            MethodArgumentTypeMismatchException.class
+    })
     public ResponseEntity<ApiError> handleBadRequests(Exception exception) {
 
         var apiError = ApiError.builder()
                 .errorMsg(exception.getMessage())
+                .build();
+
+        return ResponseEntity
+                .badRequest()
+                .body(apiError);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiError> handleMethodArgumentNotValid(MethodArgumentNotValidException exception) {
+
+        String errorMessage = exception.getFieldErrors()
+                .stream()
+                .map(error -> "'%s' %s".formatted(error.getField(), error.getDefaultMessage()))
+                .collect(Collectors.joining("; "));
+
+        var apiError = ApiError.builder()
+                .errorMsg(errorMessage)
                 .build();
 
         return ResponseEntity

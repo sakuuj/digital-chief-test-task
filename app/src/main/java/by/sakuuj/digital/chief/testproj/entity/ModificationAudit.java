@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 @Data
 @Builder
@@ -18,6 +19,8 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @Embeddable
 public class ModificationAudit {
+
+    private static final DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss");
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
@@ -27,7 +30,10 @@ public class ModificationAudit {
 
     @PrePersist
     private void beforePersist() {
-        LocalDateTime currentTimeUTC = LocalDateTime.now(Clock.systemUTC());
+        LocalDateTime currentTimeUTC = LocalDateTime.parse(
+                LocalDateTime.now(Clock.systemUTC()).format(dateTimeFormatter),
+                dateTimeFormatter
+        );
 
         createdAt = currentTimeUTC;
         updatedAt = currentTimeUTC;
@@ -35,8 +41,10 @@ public class ModificationAudit {
 
     @PreUpdate
     private void beforeUpdate() {
-        LocalDateTime currentTimeUTC = LocalDateTime.now(Clock.systemUTC());
-
+        LocalDateTime currentTimeUTC = LocalDateTime.parse(
+                LocalDateTime.now(Clock.systemUTC()).format(dateTimeFormatter),
+                dateTimeFormatter
+        );
         updatedAt = currentTimeUTC;
     }
 }

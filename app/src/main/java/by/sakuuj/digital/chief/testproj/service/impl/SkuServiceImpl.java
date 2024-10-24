@@ -50,7 +50,7 @@ public class SkuServiceImpl implements SkuService {
                                         .content(list)
                                         .pageSize(pageable.getPageSize())
                                         .pageNumber(pageable.getPageNumber())
-                                        .totalCount(foundPage.getTotalPages())
+                                        .totalElementsCount((int)foundPage.getTotalElements())
                                         .build()
                         )
                 );
@@ -75,7 +75,7 @@ public class SkuServiceImpl implements SkuService {
                                         .content(list)
                                         .pageSize(pageable.getPageSize())
                                         .pageNumber(pageable.getPageNumber())
-                                        .totalCount(foundPage.getTotalPages())
+                                        .totalElementsCount((int)foundPage.getTotalElements())
                                         .build()
                         )
                 );

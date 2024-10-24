@@ -1,7 +1,6 @@
 package by.sakuuj.digital.chief.testproj.service.impl;
 
 import by.sakuuj.digital.chief.testproj.dto.SkuDocumentDto;
-import by.sakuuj.digital.chief.testproj.entity.Sku;
 import by.sakuuj.digital.chief.testproj.service.SkuElasticsearchService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;

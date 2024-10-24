@@ -13,4 +13,4 @@ spring.jpa.properties.hibernate.format_sql: true
 by.sakuuj.elasticsearch.server.url: http://localhost:9200
 by.sakuuj.elasticsearch.password: elastic
 by.sakuuj.elasticsearch.main-index.name: products_and_skus
-by.sakuuj.elasticsearch.json-files.index.base-path: products_and_skus
+by.sakuuj.elasticsearch.json-files.index.base-path: elasticsearch/index/

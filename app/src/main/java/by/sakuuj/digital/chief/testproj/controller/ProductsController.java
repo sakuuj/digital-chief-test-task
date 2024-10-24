@@ -7,8 +7,12 @@ import by.sakuuj.digital.chief.testproj.service.ProductElasticsearchService;
 import by.sakuuj.digital.chief.testproj.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -38,6 +42,65 @@ public class ProductsController {
     private final ProductService productService;
     private final ProductElasticsearchService productElasticsearchService;
 
+
+    @Operation(
+            parameters = {
+                    @Parameter(name = PRODUCT_TITLE_PARAM,
+                            description = "If used, then you must also use '" + PRODUCT_DESCRIPTION_PARAM + "', otherwise PostgreSQL will be used"),
+                    @Parameter(name = PRODUCT_DESCRIPTION_PARAM,
+                            description = "If used, then you must also use '" + PRODUCT_TITLE_PARAM + "', otherwise PostgreSQL will be used"),
+
+                    @Parameter(name = CHILD_SKU_DEPARTMENT_PARAM, example = "Electronics",
+                            description = "If used, then you must also use '" + PRODUCT_BRAND_PARAM + "', otherwise PostgreSQL will be used"),
+                    @Parameter(name = PRODUCT_BRAND_PARAM, example = "LogiTech",
+                            description = "If used, then you must also use '" + CHILD_SKU_DEPARTMENT_PARAM + "', otherwise PostgreSQL will be used"),
+                    @Parameter(name = "page", example = "0"),
+                    @Parameter(name = "size", example = "3"),
+
+            },
+            description = "To use Elasticsearch, you should specify either both "
+                    + PRODUCT_TITLE_PARAM + " and " + PRODUCT_DESCRIPTION_PARAM + " or "
+                    + CHILD_SKU_DEPARTMENT_PARAM + " and " + PRODUCT_BRAND_PARAM
+                    + ". Otherwise PostgreSQL will be used"
+    )
+    @ApiResponse(responseCode = "200", content = @Content)
+    @GetMapping
+    public PagedResponse<ProductResponse> findAll(@Parameter(hidden = true) Pageable pageable) {
+
+        return productService.findAllSortedByCreatedAtDesc(pageable);
+    }
+
+    @ApiResponse(responseCode = "200", content = @Content)
+    @GetMapping(params = {PRODUCT_TITLE_PARAM, PRODUCT_DESCRIPTION_PARAM})
+    public PagedResponse<ProductResponse> findProductsByProductTitleOrProductDescription(
+            @Parameter(hidden = true) @RequestParam(name = PRODUCT_TITLE_PARAM) String productTitle,
+            @Parameter(hidden = true) @RequestParam(name = PRODUCT_DESCRIPTION_PARAM) String productDescription,
+            @Parameter(hidden = true) Pageable pageable
+    ) {
+        return productElasticsearchService.findAllByProductTitleOrProductDescription(
+                productTitle,
+                productDescription,
+                pageable.getPageNumber() * pageable.getPageSize(),
+                pageable.getPageSize()
+        );
+    }
+
+    @ApiResponse(responseCode = "200", content = @Content)
+    @GetMapping(params = {CHILD_SKU_DEPARTMENT_PARAM, PRODUCT_BRAND_PARAM})
+    public PagedResponse<ProductResponse> findByChildHavingSkuDepartmentAndProductBrand(
+            @Parameter(hidden = true) @RequestParam(name = CHILD_SKU_DEPARTMENT_PARAM) String childSkuDepartment,
+            @Parameter(hidden = true) @RequestParam(name = PRODUCT_BRAND_PARAM) String productBrand,
+            @Parameter(hidden = true) Pageable pageable
+    ) {
+        return productElasticsearchService.findAllByHavingChildWithSkuDepartmentAndProductBrand(
+                productBrand,
+                childSkuDepartment,
+                pageable.getPageNumber() * pageable.getPageSize(),
+                pageable.getPageSize()
+        );
+    }
+
+    @ApiResponse(responseCode = "200", content = @Content)
     @GetMapping("/{id}")
     public ResponseEntity<ProductResponse> findById(@PathVariable("id") UUID id) {
 
@@ -46,58 +109,10 @@ public class ProductsController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    @Operation(
-            parameters = {
-                    @Parameter(name = PRODUCT_TITLE_PARAM,
-                            description = "If used, then you must also use '" + PRODUCT_DESCRIPTION_PARAM + "'"),
-                    @Parameter(name = PRODUCT_DESCRIPTION_PARAM,
-                            description = "If used, then you must also use '" + PRODUCT_TITLE_PARAM + "'"),
-
-                    @Parameter(name = CHILD_SKU_DEPARTMENT_PARAM,
-                            description = "If used, then you must also use '" + PRODUCT_BRAND_PARAM + "'"),
-                    @Parameter(name = PRODUCT_BRAND_PARAM,
-                            description = "If used, then you must also use '" + CHILD_SKU_DEPARTMENT_PARAM + "'"),
-            }
-    )
-    @GetMapping
-    public PagedResponse<ProductResponse> findAll(Pageable pageable) {
-
-        return productService.findAllSortedByCreatedAtDesc(pageable);
-    }
-
-    @GetMapping(params = {PRODUCT_TITLE_PARAM, PRODUCT_DESCRIPTION_PARAM})
-    public PagedResponse<ProductResponse> findProductsByProductTitleOrProductDescription(
-            @Parameter(hidden = true) @RequestParam(name = PRODUCT_TITLE_PARAM) String productTitle,
-            @Parameter(hidden = true) @RequestParam(name = PRODUCT_DESCRIPTION_PARAM) String productDescription,
-            Pageable pageable
-    ) {
-        return productElasticsearchService.findAllByProductTitleOrProductDescription(
-                productTitle,
-                productDescription,
-                pageable.getPageNumber(),
-                pageable.getPageSize()
-        );
-    }
-
-    @GetMapping(params = {CHILD_SKU_DEPARTMENT_PARAM, PRODUCT_BRAND_PARAM})
-    public PagedResponse<ProductResponse> findByChildHavingSkuDepartmentAndProductBrand(
-            @Parameter(hidden = true) @RequestParam(name = CHILD_SKU_DEPARTMENT_PARAM) String childSkuDepartment,
-            @Parameter(hidden = true) @RequestParam(name = PRODUCT_BRAND_PARAM) String productBrand,
-            Pageable pageable
-    ) {
-        return productElasticsearchService.findAllByHavingChildWithSkuDepartmentAndProductBrand(
-                childSkuDepartment,
-                productBrand,
-                pageable.getPageNumber(),
-                pageable.getPageSize()
-        );
-    }
-
     @PostMapping
-    public ResponseEntity<Void> save(@RequestBody ProductRequest request) {
+    public ResponseEntity<Void> create(@RequestBody @Valid ProductRequest request) {
 
         UUID id = productService.save(request);
-
         return ResponseEntity.created(URI.create("/products/" + id)).build();
     }
 
@@ -113,7 +128,7 @@ public class ProductsController {
     public ResponseEntity<Void> updateByIdAndVersion(
             @PathVariable("id") UUID id,
             @RequestParam("version") short version,
-            @RequestBody ProductRequest request
+            @RequestBody @Valid ProductRequest request
     ) {
 
         productService.update(id, version, request);

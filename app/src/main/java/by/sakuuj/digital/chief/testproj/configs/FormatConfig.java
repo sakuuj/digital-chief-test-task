@@ -14,11 +14,10 @@ public class FormatConfig {
     @Bean(name = "conversionService")
     public FormattingConversionService conversionService() {
 
-        DefaultFormattingConversionService conversionService =
-                new DefaultFormattingConversionService(false);
+        var conversionService = new DefaultFormattingConversionService(false);
 
-        DateTimeFormatterRegistrar dateTimeRegistrar = new DateTimeFormatterRegistrar();
-        dateTimeRegistrar.setDateTimeFormatter(DateTimeFormatter.ISO_LOCAL_DATE_TIME);
+        var dateTimeRegistrar = new DateTimeFormatterRegistrar();
+        dateTimeRegistrar.setDateTimeFormatter(DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss"));
         dateTimeRegistrar.registerFormatters(conversionService);
 
         return conversionService;
