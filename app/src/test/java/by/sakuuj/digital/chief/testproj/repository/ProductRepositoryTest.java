@@ -40,25 +40,14 @@ class ProductRepositoryTest extends PostgresSingletonContainerLauncher {
                 .withVersion((short) 0);
 
         Product firstProduct = productBuilder.build();
-        Product secondProduct = productBuilder.build()
-                .setModificationAudit(
-                        ModificationAudit.builder()
-                                .createdAt(firstProduct.getModificationAudit().getCreatedAt().plusDays(1))
-                                .updatedAt(firstProduct.getModificationAudit().getUpdatedAt())
-                                .build()
-                );
-        Product thirdProduct = productBuilder.build()
-                .setModificationAudit(
-                        ModificationAudit.builder()
-                                .createdAt(firstProduct.getModificationAudit().getCreatedAt().plusDays(3))
-                                .updatedAt(firstProduct.getModificationAudit().getUpdatedAt())
-                                .build()
-                );
+        Product secondProduct = productBuilder.build();
+        Product thirdProduct = productBuilder.build();
 
         entityManager.persist(firstProduct);
+        entityManager.flush();
         entityManager.persist(secondProduct);
+        entityManager.flush();
         entityManager.persist(thirdProduct);
-
         entityManager.flush();
 
         // when
